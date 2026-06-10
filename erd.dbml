@@ -1,0 +1,101 @@
+// ==========================================
+// BETTER AUTH CORE TABLES
+// ==========================================
+
+Table user {
+  id string [primary key]
+  name string
+  email string
+  emailVerified boolean
+  image string
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table session {
+  id string [primary key]
+  userId string
+  token string
+  expiresAt timestamp
+  ipAddress string
+  userAgent string
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table account {
+  id string [primary key]
+  userId string
+  accountId string
+  providerId string
+  accessToken string
+  refreshToken string
+  accessTokenExpiresAt timestamp
+  scope string
+  password string
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+Table verification {
+  id string [primary key]
+  identifier string
+  value string
+  expiresAt timestamp
+  createdAt timestamp
+  updatedAt timestamp
+}
+
+// ==========================================
+// RBAC DOMAIN TABLES
+// ==========================================
+
+Table roles {
+  id uuid [primary key]
+  name string
+  description string
+  createdAt timestamp
+}
+
+Table permissions {
+  id uuid [primary key]
+  action string
+  resource string
+  description string
+}
+
+Table user_roles {
+  id uuid [primary key]
+  user_id string
+  role_id uuid
+  assigned_at timestamp
+  assigned_by string
+}
+
+Table role_permissions {
+  id uuid [primary key]
+  role_id uuid
+  permission_id uuid
+  assigned_at timestamp
+}
+
+// ==========================================
+// RELATIONSHIPS
+// ==========================================
+
+// User -> Session (1:N)
+Ref: user.id < session.userId
+
+// User -> Account (1:N)
+Ref: user.id < account.userId
+
+// Many-to-Many: User <-> Roles
+Ref: user.id < user_roles.user_id
+Ref: roles.id < user_roles.role_id
+
+// Optional: Relasi untuk audit trail (siapa yang assign role)
+Ref: user.id < user_roles.assigned_by
+
+// Many-to-Many: Roles <-> Permissions
+Ref: roles.id < role_permissions.role_id
+Ref: permissions.id < role_permissions.permission_id
